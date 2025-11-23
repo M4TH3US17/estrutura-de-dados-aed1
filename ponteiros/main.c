@@ -12,7 +12,7 @@
 int main() {
 
     printf("\n--------------------------------------------------");
-    printf("\n           DECLARAÇÃO DE PONTEIRO              ");
+    printf("\n           DECLARAÇÃO DO PONTEIRO              ");
     printf("\n--------------------------------------------------\n");
     printf("Endereço (Hexadecimal) |  Conteúdo");
     /*
@@ -30,7 +30,7 @@ int main() {
     printf("\n[5]: %p    |  %s", &caracteres[5], caracteres[5]);
     printf("\n[6]: %p    |  %s", &caracteres[6], caracteres[6]);
 
-    printf("\n\n> Nota-se que a cada nova compilação/execução os ponteiros apontam pra endereços \ndiferentes, isso acontece pq a memória RAM é dinâmica e a cada fim de execução o \nprocesso/programa encerra, ou seja, a cada nova execução o programa reinicia apontando\naleatoriamente pra endereços aleatórios na memória;");
+    printf("\n\n> Nota-se que a cada nova compilação/execução os ponteiros apontam pra endereços \n  diferentes, isso acontece pq a memória RAM é dinâmica e a cada fim de execução o \n  processo/programa encerra, ou seja, a cada nova execução o programa reinicia apontando\n  aleatoriamente pra endereços aleatórios na memória;");
 
     printf("\n\n--------------------------------------------------");
     printf("\n                MALLOC/FREE                         ");
@@ -53,8 +53,36 @@ int main() {
     for(int index = 0;index < 6; index++)
         printf("\n[%d]: %p    |  %s", index, &caracteres[index], caracteres[index]);*/
 
-    printf("\n\n> A função \"malloc\" alocou os espaços nos endereços mantendo os bits \"lixo\". \n  Pra mudar esses bits, só atribuindo valor a cada variável ponteiro;");
+    printf("\n\n> A função \"malloc\" alocou os espaços nos endereços mantendo os bits \"lixo\" de outros \n  processos/programas do computador. Pra mudar esses bits, só atribuindo valor a cada \n  variável ponteiro;\n");
     printf("\n> Neste ultimo FOR (descomente-o) os endereços de cada ponteiro que passaram \n  pela free() foram liberados para outros programas/processos usar. Com isso, \n  pode ser que esses processos sobrescrevam ou reutilizem os bits/dados que deixamos lá;");
+
+    printf("\n\n--------------------------------------------------");
+    printf("\n      PONTEIRO COMO VALOR DE OUTRO PONTEIRO                         ");
+    printf("\n--------------------------------------------------\n");
+    char* ptr1;
+    char* ptr2;
+    char* ptrAux;
+
+    ptr1 = malloc(10);
+    ptr2 = malloc(10);
+
+    // -> Valores iniciais dos ponteiros (cada um apontando p/ seu respectivo endereço);
+    printf("Ponteiro 1 (ptr1): %p", ptr1);
+    printf("\nPonteiro 2 (ptr2): %p", ptr2);
+    //printf("\nPonteiro Auxiliar (ptrAux): %p", ptrAux);
+
+    ptrAux = ptr1;
+    ptr1 = ptr2;
+
+    // -> Ponteiro 1 aponta p/ o mesmo endereço de Ponteiro 2;
+    printf("\n\nPonteiro 1 (ptr1): %p", ptr1);
+    printf("\nPonteiro 2 (ptr2): %p", ptr2);
+    //printf("\nPonteiro Auxiliar (ptrAux): %p", ptrAux);
+
+    printf("\n\n> Ponteiro 1 (ptr1) inicialmente guardava o endereço %p, mas foi-lhe atribuido\n  o Ponteiro 2 %p, então Ponteiro 1 e Ponteiro 2 agora apontam para o mesmo endereço\n  de memória (%p);", ptrAux, ptr2, ptr1);
+    free(ptr1);
+    free(ptrAux);
+    //printf("Ponteiro 1: %p;\nPonteiro 2: %p;\nPonteiro Auxiliar: %p;", &ptr1, &ptr2);
 
     return 0;
 }
