@@ -3,17 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*
-    (nome[10] + idade)
-    = {(10B + 2B) + 4B)} = Bytes/pessoa
+/* 
+    (nome[10] + idade) 
+    = {(10B + 2B) + 4B)} = Bytes/pessoa 
     = 16B
-
-    -> processadores 64-bit buscam 8Bytes por vez na mem�ria;
-    -> processadores 32-bit buscam 4Bytes por vez na mem�ria;
+    
+    -> processadores 64-bit buscam 8Bytes por vez na memória;
+    -> processadores 32-bit buscam 4Bytes por vez na memória;
 */
-typedef struct Pessoa {
-  char nome[10]; // 12B (o compilador corrige o 10B adicionando +2B overhead pra organizar o padding de mem�ria)
-  int idade; // o 4B daqui agora come�a no Byte 12
+typedef struct Pessoa { 
+  char nome[10]; // 12B (o compilador corrige o 10B adicionando +2B overhead pra organizar o padding de memória)
+  int idade; // o 4B daqui agora começa no Byte 12
 } Pessoa;
 
 struct Aluno { // (notas[4] + next + dados) = (16B + 8B + 16B) = Bytes/aluno = 40B/1
@@ -23,43 +23,59 @@ struct Aluno { // (notas[4] + next + dados) = (16B + 8B + 16B) = Bytes/aluno = 4
 };
 
 /*
-    @note comparar este c�digo com o esquema que est� no README se��o
+    @param head inicio da lista
+    @param data dados do novo nó da lista
+    
+    @return endereço do novo nó se head for nulo
+    @return endereço do primeiro nó se head não for nulo
 */
 struct Aluno* add_fim(struct Aluno* head, struct Aluno data) {
-    struct Aluno* enderecoMemoriaNovoNode = (struct Aluno*) malloc((sizeof(struct Aluno)));
-
-    enderecoMemoriaNovoNode->next = NULL;
-    enderecoMemoriaNovoNode->dadosPessoais.idade = data.dadosPessoais.idade;
-    strcpy(enderecoMemoriaNovoNode->dadosPessoais.nome, data.dadosPessoais.nome);
-    for(int index = 0; index < 3; index++)
-        enderecoMemoriaNovoNode->notas[index] = data.notas[index];
-
-    int ehPrimeiroNodeDaLista = (head->next == NULL);
-    if(ehPrimeiroNodeDaLista) return enderecoMemoriaNovoNode;
-
-    struct Aluno* ultimoNode = head;
-    int ehUltimoNodeDaLista  = (ultimoNode->next != NULL);
-    while(ehUltimoNodeDaLista)
-        ultimoNode = ultimoNode->next;
-    ultimoNode->next = enderecoMemoriaNovoNode;
-
-    return head;
+    printf("add_fim :: Iniciando processo de inserção no fim da lista...\n");
+    struct Aluno* novo = (struct Aluno*) malloc(sizeof(struct Aluno));
+    
+    printf("add_fim :: Node de endereço \"%p\" criado com sucesso!\n", novo);
+    *novo = data;
+    novo->next = NULL;
+    
+    if(head->next == NULL) {
+        printf("add_fim :: Elemento de endereço \"%p\" é o primeiro da lista.\n", novo);
+        head->next = novo;
+        printf("add_fim :: Elemento inserido no inicio com sucesso! (ele é o primeiro nó)\n\n");
+        return novo;
+    }
+    
+    printf("add_fim :: Iniciando busca do ultimo elemento da lista...\n");
+    struct Aluno* ultimo = head;
+    
+    printf("add_fim :: Iniciando busca do ultimo elemento da lista...\n");
+    while(ultimo->next != NULL) 
+        ultimo = ultimo->next;
+    
+    ultimo->next = novo;
+    printf("add_fim :: Elemento inserido no fim com sucesso!\n\n");
+    
+    return head->next;
 }
 
-int main() {
+int main() { 
     struct Aluno* head = (struct Aluno*) malloc((sizeof(struct Aluno)));
     head->next = NULL;
-
-    struct Aluno* novo = add_fim(head, (struct Aluno) {
-      .dadosPessoais.nome = "Matheus",
-      .dadosPessoais.idade = 22,
-      .notas = {0, 1.5, 0, 2},
-      .next = NULL
+    
+    add_fim(head, (struct Aluno) {
+      .dadosPessoais.nome = "Matheus", 
+      .dadosPessoais.idade = 22, 
+      .notas = {0, 1.5, 0, 2}, 
+      .next = NULL 
     });
-
-    head->next = novo;
-
+    
+    add_fim(head, (struct Aluno) {
+      .dadosPessoais.nome = "Matheus", 
+      .dadosPessoais.idade = 22, 
+      .notas = {0, 1.5, 0, 2}, 
+      .next = NULL 
+    });
+    
     free(head);
-
+    
     return 0;
 }
