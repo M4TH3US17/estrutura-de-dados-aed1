@@ -57,6 +57,18 @@ struct Aluno* add_fim(struct Aluno* head, struct Aluno data) {
     return head->next;
 }
 
+void get_all(struct Aluno* head) {
+    printf("add_fim :: Iniciando processo de busca de todos os elementos...\n");
+    struct Aluno* inicio = head;
+    
+    while(inicio->next != NULL) {
+        inicio = inicio->next;
+        printf("%s\n", inicio->dadosPessoais.nome);
+    }
+    
+    free(inicio);
+}
+
 int main() { 
     struct Aluno* head = (struct Aluno*) malloc((sizeof(struct Aluno)));
     head->next = NULL;
@@ -64,16 +76,18 @@ int main() {
     add_fim(head, (struct Aluno) {
       .dadosPessoais.nome = "Matheus", 
       .dadosPessoais.idade = 22, 
-      .notas = {0, 1.5, 0, 2}, 
+      .notas = {0, 1.5, 0, 2}, // Manda ele me dar um ponto, to na merd
       .next = NULL 
     });
     
     add_fim(head, (struct Aluno) {
-      .dadosPessoais.nome = "Matheus", 
-      .dadosPessoais.idade = 22, 
-      .notas = {0, 1.5, 0, 2}, 
+      .dadosPessoais.nome = "Jaide",  
+      .dadosPessoais.idade = 20, 
+      .notas = {10, 9, 9, 7}, 
       .next = NULL 
     });
+    
+    //get_all(head);
     
     free(head);
     
