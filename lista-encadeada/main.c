@@ -5,6 +5,7 @@
 typedef struct Pessoa {
     char nome[10];
     int idade;
+    char genero;
     struct Pessoa* next;
 } Node;
 
@@ -36,12 +37,12 @@ Node* buscar_ultimo(Node* node) {
 // Funções de Adicionar
 void inserir_inicio(Node* head, Node node) {
     Node *primeiro = head->next;
-    
+
     if(ehPrimeiroNodeNull(head)) {
         head->next = criar_node(node);
         return;
     }
-    
+
     Node* novo = criar_node(node);
     novo->next = primeiro;
     head->next = novo;
@@ -56,25 +57,51 @@ void inserir_fim(Node* head, Node node) {
     ultimo->next = criar_node(node);
 };
 
+void inserir_ordenado_por_genero(Node* head, Node node) {
+    Node* novo = criar_node(node);
+
+    if(ehPrimeiroNodeNull(head)) {
+        inserir_inicio(head, node);
+        return;
+    }
+    if(novo->genero == 'M') inserir_inicio(head, node);
+    if(novo->genero == 'F') inserir_fim(head, node);
+}
+
+// Ordenação Insertion p/ idade
+Node* insertSorted(Node* sorted, Node* newNode) {
+    if (sorted == NULL || newNode->idade < sorted->idade) {
+        newNode->next = sorted;
+        return newNode;
+    }
+    sorted->next = insertSorted(sorted->next, newNode);
+    return sorted;
+}
+
+Node* insertionSort(Node* head) {
+    if (head == NULL) return NULL;
+    return insertSorted(insertionSort(head->next), head);
+}
+
 // Funções de Remover
 void remover_por_nome(Node* head, Node* before, char nome[]) {
     int ehPrimeiro = !strcmp("", before->nome);
     int ehUltimo = !strcmp("", head->nome);
-    
+
     if(ehPrimeiroNodeNull(head) && ehUltimo) return;
-    
+
     if(!strcmp(nome, head->nome)) {
         if(ehPrimeiro) {
-            // head apontar pro segundo 
+            // head apontar pro segundo
             // primeiro elemento não apontar p/ segundo (isolar ele)
             // excluir o primeiro elemento, que está isolado
             Node* lixo = head;
-            Node* segundo = lixo->next; 
+            Node* segundo = lixo->next;
             head = segundo;
-            
+
             lixo->next = NULL;
             free(lixo);
-            
+
             printf("\nPrimeiro (HEAD): %s\n",head);
             printf("Lixo: %s\n",lixo);
             return;
@@ -89,15 +116,24 @@ void remover_por_nome(Node* head, Node* before, char nome[]) {
 int main() {
     Node* head = (Node*) malloc(sizeof(Node));
     head->next = NULL;
-    
-    inserir_fim(head, (Node) { .nome= "Tommy", .idade= 22, .next= NULL });
-    inserir_fim(head, (Node) { .nome= "Matheus", .idade= 22, .next= NULL });
-    inserir_fim(head, (Node) { .nome= "Melanie", .idade= 22, .next= NULL });
-    inserir_fim(head, (Node) { .nome= "Maysa", .idade= 22, .next= NULL });
-    
+
+    inserir_fim(head, (Node) { .nome= "Tommy", .idade= 10, .genero='M', .next= NULL });
+    inserir_fim(head, (Node) { .nome= "Matheus", .idade= 22, .genero='M', .next= NULL });
+    inserir_fim(head, (Node) { .nome= "Melanie", .idade= 9, .genero='F', .next= NULL });
+    inserir_fim(head, (Node) { .nome= "Chloe", .idade= 9, .genero='F', .next= NULL });
+    inserir_fim(head, (Node) { .nome= "Maysa", .idade= 24, .genero='F', .next= NULL });
+
+    //insertionSort(head);
+
+    // inserir_ordenado_por_genero(head, (Node) { .nome= "Melanie", .idade=8, .genero='F', .next= NULL });
+    // inserir_ordenado_por_genero(head, (Node) { .nome= "Maysa", .idade=24, .genero='F', .next= NULL });
+    // inserir_ordenado_por_genero(head, (Node) { .nome= "Tommy", .idade=10, .genero='M', .next= NULL });
+    // inserir_ordenado_por_genero(head, (Node) { .nome= "Matheus", .idade=22, .genero='M', .next= NULL });
+    // inserir_ordenado_por_genero(head, (Node) { .nome= "Chloe", .idade=10, .genero='F', .next= NULL });
+
+    //remover_por_nome(head, head, "Tommy");
+
     imprimir(head);
-    remover_por_nome(head, head, "Tommy");
-    imprimir(head);
-    
+
     return 0;
 }
