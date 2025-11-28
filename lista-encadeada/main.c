@@ -1,139 +1,103 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* 
-    (nome[10] + idade) 
-    = {(10B + 2B) + 4B)} = Bytes/pessoa 
-    = 16B
-    
-    -> processadores 64-bit buscam 8Bytes por vez na memória;
-    -> processadores 32-bit buscam 4Bytes por vez na memória;
-*/
-typedef struct Pessoa { 
-  char nome[10]; // 12B (o compilador corrige o 10B adicionando +2B overhead pra organizar o padding de memória)
-  int idade; // o 4B daqui agora começa no Byte 12
-} Pessoa;
+typedef struct Pessoa {
+    char nome[10];
+    int idade;
+    struct Pessoa* next;
+} Node;
 
-struct Aluno { // (notas[4] + next + dados) = (16B + 8B + 16B) = Bytes/aluno = 40B/1
-  Pessoa dadosPessoais;
-  float notas[4];
-  struct Aluno* next; // 8B de overhead
-};
-
-/*
-    @param head inicio da lista
-    @param data dados do novo nó da lista
-    
-    @return endereço do novo nó se head for nulo
-    @return endereço do primeiro nó se head não for nulo
-*/
-struct Aluno* add_fim(struct Aluno* head, struct Aluno data) {
-    printf("add_fim :: Iniciando processo de inserção no fim da lista...\n");
-    struct Aluno* novo = (struct Aluno*) malloc(sizeof(struct Aluno));
-    
+// Funções Auxiliares
+Node* criar_node(Node data) {
+    Node* novo = (Node*) malloc(sizeof(Node));
     *novo = data;
     novo->next = NULL;
-    printf("add_fim :: Node de endereço \"%p\" (%s) criado com sucesso!\n", novo, novo->dadosPessoais.nome);
-    
-    if(head->next == NULL) {
-        printf("add_fim :: Elemento de endereço \"%p\" é o primeiro da lista.\n", novo);
-        head->next = novo;
-        printf("add_fim :: Elemento inserido no inicio com sucesso! (ele é o primeiro nó)\n\n");
-        return novo;
-    }
-    
-    printf("add_fim :: Iniciando busca do ultimo elemento da lista...\n");
-    struct Aluno* ultimo = head;
-    
-    while(ultimo->next != NULL) 
-        ultimo = ultimo->next;
-    
-    ultimo->next = novo;
-    printf("add_fim :: Elemento inserido no fim com sucesso!\n\n");
-    
-    return head->next;
+    return novo;
+};
+
+int ehPrimeiroNodeNull(Node* head) {
+    return head->next == NULL;
 }
 
-struct Aluno* add_inicio(struct Aluno* head, struct Aluno data) {
-    struct Aluno* novo = (struct Aluno*) malloc(sizeof(struct Aluno));
-    *novo = data;
+// Funções de Busca
+void imprimir(Node* node) {
+    if(node == NULL) return;
+    printf("%s\n", node->nome);
+    return imprimir(node->next);
+}
+
+Node* buscar_ultimo(Node* node) {
+    if(node == NULL) return NULL;
+    if(node->next == NULL) return node;
+    return buscar_ultimo(node->next);
+}
+
+// Funções de Adicionar
+void inserir_inicio(Node* head, Node node) {
+    Node *primeiro = head->next;
     
-    printf("add_fim :: Node de endereço \"%p\" (%s) criado com sucesso!\n", novo, novo->dadosPessoais.nome);
-    printf("add_fim :: Adicionando \"%p\" no inicio da lista...\n", novo);
-    if(head->next == NULL) {
-        novo->next = NULL;
-        head->next = novo;
-        printf("add_fim :: \"%p\" é o primeiro elemento da lista!\n\n", novo);
-        return head;
+    if(ehPrimeiroNodeNull(head)) {
+        head->next = criar_node(node);
+        return;
     }
     
-    struct Aluno* primeiro = head->next;
+    Node* novo = criar_node(node);
     novo->next = primeiro;
     head->next = novo;
-    
-    printf("add_fim :: \"%p\" adicionado ao inicio com sucesso!\n\n", novo);
-    return head;
-}
+};
 
-void get_all(struct Aluno* head) {
-    printf("add_fim :: Iniciando processo de busca de todos os elementos...\n");
-    struct Aluno* inicio = head;
-    
-    while(inicio->next != NULL) {
-        inicio = inicio->next;
-        printf("%s\n", inicio->dadosPessoais.nome);
+void inserir_fim(Node* head, Node node) {
+    if(ehPrimeiroNodeNull(head)) {
+        inserir_inicio(head, node);
+        return;
     }
+    Node* ultimo = buscar_ultimo(head);
+    ultimo->next = criar_node(node);
+};
+
+// Funções de Remover
+void remover_por_nome(Node* head, Node* before, char nome[]) {
+    int ehPrimeiro = !strcmp("", before->nome);
+    int ehUltimo = !strcmp("", head->nome);
     
-    free(inicio);
+    if(ehPrimeiroNodeNull(head) && ehUltimo) return;
+    
+    if(!strcmp(nome, head->nome)) {
+        if(ehPrimeiro) {
+            // head apontar pro segundo 
+            // primeiro elemento não apontar p/ segundo (isolar ele)
+            // excluir o primeiro elemento, que está isolado
+            Node* lixo = head;
+            Node* segundo = lixo->next; 
+            head = segundo;
+            
+            lixo->next = NULL;
+            free(lixo);
+            
+            printf("\nPrimeiro (HEAD): %s\n",head);
+            printf("Lixo: %s\n",lixo);
+            return;
+        }
+        printf("\n\n> Current: %s, Before: %s", head->nome, before);
+        return;
+    }
+    Node* previous = head;
+    return remover_por_nome(head->next, previous, nome);
 }
 
-// struct Aluno* get_by_name(struct Aluno* head, char name[10]) {
-//     printf("add_fim :: Iniciando processo de busca do aluno de nome \"%s\"...\n", name);
-//     return NULL;
-// }
-
-// void remove_by_name(struct Aluno* head, char name[10]) {
-//     printf("add_fim :: Iniciando processo de remoção do aluno de nome \"%s\"...\n", name);
-    
-//     if(head->next == NULL) {
-//         printf("add_fim :: Lista vazia!\n", name);
-//         // matar a execução aqui
-//     }
-    
-//     struct Aluno* aluno = get_by_name(head, name);
-// }
-
-int main() { 
-    struct Aluno* head = (struct Aluno*) malloc((sizeof(struct Aluno)));
+int main() {
+    Node* head = (Node*) malloc(sizeof(Node));
     head->next = NULL;
     
+    inserir_fim(head, (Node) { .nome= "Tommy", .idade= 22, .next= NULL });
+    inserir_fim(head, (Node) { .nome= "Matheus", .idade= 22, .next= NULL });
+    inserir_fim(head, (Node) { .nome= "Melanie", .idade= 22, .next= NULL });
+    inserir_fim(head, (Node) { .nome= "Maysa", .idade= 22, .next= NULL });
     
-    add_fim(head, (struct Aluno) {
-      .dadosPessoais.nome = "Matheus", 
-      .dadosPessoais.idade = 22, 
-      .notas = {0, 1.5, 0, 2}, // Manda ele me dar um ponto, to na merd
-      .next = NULL 
-    });
-    
-    add_inicio(head, (struct Aluno) {
-      .dadosPessoais.nome = "Edson",  
-      .dadosPessoais.idade = 20, 
-      .notas = {10, 10, 10, 10}, 
-      .next = NULL 
-    });
-    
-    add_fim(head, (struct Aluno) {
-      .dadosPessoais.nome = "Jaide",  
-      .dadosPessoais.idade = 20, 
-      .notas = {10, 9, 9, 7}, 
-      .next = NULL 
-    });
-    
-    get_all(head);
-    
-    free(head);
+    imprimir(head);
+    remover_por_nome(head, head, "Tommy");
+    imprimir(head);
     
     return 0;
 }
